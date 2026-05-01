@@ -3,63 +3,77 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Prestasi;
+use App\Models\Kategori;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // 1. Data Dummy Kartu Ringkasan
+        // 1. Data Statistik (Card Atas)
+        $total = Prestasi::count();
+        $disetujui = Prestasi::where('status', 'disetujui')->count();
+        $pending = Prestasi::where('status', 'pending')->count();
+        $ditolak = Prestasi::where('status', 'ditolak')->count();
+
         $stats = [
-            'total' => 1256,
-            'disetujui' => 876,
-            'pending' => 245,
-            'ditolak' => 135,
+            'total' => $total,
+            'disetujui' => $disetujui,
+            'pending' => $pending,
+            'ditolak' => $ditolak,
+            // Hitung persentase agar dinamis
+            'persen_disetujui' => $total > 0 ? round(($disetujui / $total) * 100, 1) : 0,
+            'persen_pending' => $total > 0 ? round(($pending / $total) * 100, 1) : 0,
+            'persen_ditolak' => $total > 0 ? round(($ditolak / $total) * 100, 1) : 0,
         ];
 
-        // 2. Data Dummy Grafik Line (Tren per Tahun)
+        // 2. Data Grafik Line (Prestasi per Tahun)
+        // Dikelompokkan berdasarkan tahun dari kolom 'tanggal' lomba
+        $prestasiPerTahun = Prestasi::select(DB::raw('YEAR(tanggal) as year'), DB::raw('count(*) as total'))
+            ->groupBy('year')
+            ->orderBy('year', 'asc')
+            ->take(5) // Ambil 5 tahun terakhir
+            ->get();
+
         $chartTahunan = [
-            'labels' => ['2020/2021', '2021/2022', '2022/2023', '2023/2024', '2024/2025'],
-            'data' => [150, 220, 310, 420, 500] // Semakin naik sesuai gambar
+            'labels' => $prestasiPerTahun->pluck('year')->toArray(),
+            'data' => $prestasiPerTahun->pluck('total')->toArray(),
         ];
 
-        // 3. Data Dummy Chart Doughnut (Kategori)
+        // 3. Data Grafik Doughnut (Prestasi per Kategori)
+        $kategoris = Kategori::withCount('prestasi')->get();
+        
         $chartKategori = [
-            'labels' => ['Akademik', 'Seni & Budaya', 'Olahraga', 'Sains & Teknologi', 'Lainnya'],
-            'data' => [439, 314, 251, 188, 64]
+            'labels' => $kategoris->pluck('nama_kategori')->toArray(),
+            'data' => $kategoris->pluck('prestasi_count')->toArray(),
         ];
 
-        // 4. Data Dummy Notifikasi Terbaru
-        $notifikasiTerbaru = [
-            [
-                'tipe' => 'ditolak',
-                'judul' => 'Data prestasi ditolak',
-                'pesan' => 'Data prestasi atas nama Budi Santoso ditolak oleh Kepala Sekolah.',
-                'waktu' => '10 menit lalu',
-                'icon' => 'fa-solid fa-triangle-exclamation',
-                'color' => 'text-red-500',
-                'bg' => 'bg-red-50'
-            ],
-            [
-                'tipe' => 'pending',
-                'judul' => 'Data baru menunggu verifikasi',
-                'pesan' => '5 data prestasi baru menunggu verifikasi.',
-                'waktu' => '1 jam lalu',
-                'icon' => 'fa-solid fa-clock',
-                'color' => 'text-yellow-500',
-                'bg' => 'bg-yellow-50'
-            ],
-            [
-                'tipe' => 'sistem',
-                'judul' => 'Update sistem',
-                'pesan' => 'Sistem telah diperbarui ke versi 2.1.0',
-                'waktu' => '2 jam lalu',
-                'icon' => 'fa-solid fa-gear',
-                'color' => 'text-blue-500',
-                'bg' => 'bg-blue-50'
-            ]
-        ];
+        // Siapkan warna dinamis untuk custom legend di HTML
+        $bgColors = ['bg-blue-500', 'bg-indigo-500', 'bg-sky-400', 'bg-cyan-500', 'bg-teal-400', 'bg-blue-300'];
+        $kategoriDetails = [];
+        foreach($kategoris as $index => $kategori) {
+            if ($kategori->prestasi_count > 0) { // Hanya tampilkan di legend jika ada datanya
+                $colorClass = $bgColors[$index % count($bgColors)];
+                $kategoriDetails[$kategori->nama_kategori] = [$colorClass, $kategori->prestasi_count];
+            }
+        }
 
-        return view('admin.dashboard.index', compact('stats', 'chartTahunan', 'chartKategori', 'notifikasiTerbaru'));
+        // 4. Data Notifikasi Terbaru (Ambil 5 terbaru)
+        $notifikasiRaw = auth()->user()->notifications()->take(5)->get();
+        $notifikasiTerbaru = [];
+        foreach($notifikasiRaw as $notif) {
+            $notifikasiTerbaru[] = [
+                'judul' => $notif->data['judul'] ?? 'Pemberitahuan',
+                'pesan' => $notif->data['pesan'] ?? 'Ada pembaruan sistem.',
+                'waktu' => $notif->created_at->diffForHumans(),
+                'icon' => $notif->data['icon'] ?? 'fa-solid fa-bell',
+                'bg' => 'bg-blue-50', // Default background
+                'color' => 'text-blue-500', // Default text color
+            ];
+        }
+
+        return view('admin.dashboard.index', compact('stats', 'chartTahunan', 'chartKategori', 'kategoriDetails', 'notifikasiTerbaru'));
     }
 }

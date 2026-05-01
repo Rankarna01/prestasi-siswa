@@ -15,9 +15,15 @@
 
         <div class="h-8 w-px bg-gray-200"></div>
 
-        <button class="relative text-gray-400 hover:text-primary transition-colors">
+        <a href="{{ route('admin.notifikasi.index') }}" class="relative text-gray-400 hover:text-primary transition-colors">
             <i class="fa-regular fa-bell text-xl"></i>
-            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
-        </button>
+            
+            @php $unreadCount = auth()->user()->unreadNotifications->count(); @endphp
+            @if($unreadCount > 0)
+                <span class="absolute -top-1.5 -right-2 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full border-2 border-white">
+                    {{ $unreadCount > 99 ? '99+' : $unreadCount }}
+                </span>
+            @endif
+        </a>
     </div>
 </header>
