@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style type="text/tailwindcss">
         @theme {
@@ -27,30 +28,50 @@
 </head>
 <body class="bg-surface text-gray-800 antialiased overflow-hidden">
 
+    <!-- Global Loader -->
     <div id="global-loader" class="fixed inset-0 z-[9999] bg-white bg-opacity-80 backdrop-blur-sm flex-col items-center justify-center hidden">
         <div class="w-12 h-12 border-4 border-gray-200 border-t-primary rounded-full animate-spin"></div>
         <p class="mt-4 text-primary font-medium text-sm">Memuat data...</p>
     </div>
 
-    <div class="flex h-screen w-full">
+    <!-- Main Wrapper -->
+    <div class="flex h-screen w-full relative">
+        
+        <!-- Overlay Gelap untuk Mobile (Klik untuk menutup) -->
+        <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity"></div>
+
+        <!-- Pemanggilan Sidebar -->
         @if(auth()->check() && auth()->user()->role == 'admin')
             @include('layouts.partials.sidebar-admin')
         @elseif(auth()->check() && auth()->user()->role == 'kepala_sekolah')
             @include('layouts.partials.sidebar-kepsek')
         @endif
 
-        <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Konten Utama -->
+        <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+            <!-- Pastikan di file topbar.blade.php kamu menambahkan onclick="toggleSidebar()" pada tombol hamburger -->
             @include('layouts.partials.topbar')
 
-            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-surface p-6">
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-surface p-4 md:p-6">
                 @yield('content')
             </main>
         </div>
     </div>
 
     <script>
+        // Fungsi Toggle Sidebar Responsive
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            
+            if (sidebar && overlay) {
+                sidebar.classList.toggle('-translate-x-full');
+                overlay.classList.toggle('hidden');
+            }
+        }
+
         // Tampilkan loading saat form disubmit
-        document.querySelectorAll('form').forEach(form => {
+        document.querySelectorAll('form:not(#logout-form-admin):not(#logout-form-kepsek)').forEach(form => {
             form.addEventListener('submit', function() {
                 document.getElementById('global-loader').classList.remove('hidden');
                 document.getElementById('global-loader').classList.add('flex');
@@ -79,27 +100,6 @@
                 confirmButtonColor: '#3b82f6'
             });
         @endif
-
-        // Optional: Logout Handler dengan konfirmasi
-        function confirmLogout(event) {
-            event.preventDefault();
-            Swal.fire({
-                title: 'Keluar Sistem?',
-                text: "Sesi Anda akan diakhiri.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#9ca3af',
-                confirmButtonText: 'Ya, Keluar',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById('global-loader').classList.remove('hidden');
-                    document.getElementById('global-loader').classList.add('flex');
-                    document.getElementById('logout-form').submit();
-                }
-            });
-        }
     </script>
 </body>
 </html>
