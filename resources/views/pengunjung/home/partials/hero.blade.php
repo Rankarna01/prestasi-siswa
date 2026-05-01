@@ -54,7 +54,7 @@
                 <div class="absolute -inset-4 bg-gradient-to-tr from-blue-100 to-white rounded-3xl blur-2xl opacity-70"></div>
                 <div class="relative aspect-[4/3] sm:aspect-[16/9] lg:aspect-square overflow-hidden rounded-3xl shadow-2xl ring-1 ring-slate-900/5 bg-slate-100 flex items-center justify-center group">
                     
-                    <!-- Pengecekan Gambar Dinamis -->
+                    <!-- Pengecekan Gambar Dinamis via Symlink -->
                     @if($pengaturan && $pengaturan->hero_image)
                         <img src="{{ asset('storage/pengaturan/' . $pengaturan->hero_image) }}" alt="Hero Image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
                     @else

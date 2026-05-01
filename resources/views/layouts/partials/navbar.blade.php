@@ -9,12 +9,12 @@
         <!-- Area Logo dan Nama Sekolah Dinamis -->
         <div class="flex gap-3 items-center">
             @if($pengaturan && $pengaturan->logo)
-                <!-- Jika ada logo yang diupload -->
+                <!-- Memanggil gambar via symlink public_html/storage -->
                 <img src="{{ asset('storage/pengaturan/' . $pengaturan->logo) }}" alt="Logo Sekolah" class="w-9 h-9 rounded-full object-cover shadow-sm border border-slate-100 bg-white">
             @else
                 <!-- Fallback jika belum upload logo -->
                 <div class="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-white shadow-sm">
-                    <i class="fa-solid fa-graduation-cap text-sm"></i>
+                    <i class="fa-solid fa-school text-sm"></i>
                 </div>
             @endif
             
@@ -97,10 +97,8 @@
         const icon = mobileMenuButton.querySelector('i');
 
         mobileMenuButton.addEventListener('click', function () {
-            // Toggle visibility menu mobile
             mobileMenu.classList.toggle('hidden');
             
-            // Ubah icon dari garis tiga (bars) menjadi X (xmark)
             if (mobileMenu.classList.contains('hidden')) {
                 icon.classList.remove('fa-xmark');
                 icon.classList.add('fa-bars');
