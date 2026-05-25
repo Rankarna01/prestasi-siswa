@@ -116,46 +116,62 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Pengecekan data untuk Line Chart
-        const lineLabels = {!! json_encode($chartTahunan['labels']) !!};
-        const lineData = {!! json_encode($chartTahunan['data']) !!};
+        // Pengecekan data untuk Bar Chart (Tadinya Line Chart)
+        const barLabels = {!! json_encode($chartTahunan['labels']) !!};
+        const barData = {!! json_encode($chartTahunan['data']) !!};
         
-        // Init Line Chart (Hanya jika ada data)
-        if(lineLabels.length > 0) {
-            const ctxLine = document.getElementById('lineChart').getContext('2d');
-            new Chart(ctxLine, {
-                type: 'line',
+        // Init Bar Chart (Hanya jika ada data)
+        if(barLabels.length > 0) {
+            const ctxBar = document.getElementById('lineChart').getContext('2d');
+            new Chart(ctxBar, {
+                type: 'bar', // DIUBAH DARI 'line' MENJADI 'bar'
                 data: {
-                    labels: lineLabels,
+                    labels: barLabels,
                     datasets: [{
                         label: 'Total Prestasi',
-                        data: lineData,
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        borderWidth: 2,
-                        tension: 0.4,
-                        fill: true,
-                        pointBackgroundColor: '#ffffff',
-                        pointBorderColor: '#3b82f6',
-                        pointBorderWidth: 2,
-                        pointRadius: 4
+                        data: barData,
+                        backgroundColor: '#3b82f6', // Warna biru solid
+                        hoverBackgroundColor: '#2563eb', // Biru lebih gelap saat dihover
+                        borderRadius: 6, // Ujung atas batang agak melengkung (modern look)
+                        borderSkipped: false,
+                        barThickness: 'flex', // Menyesuaikan lebar batang secara otomatis
+                        maxBarThickness: 40 // Maksimal lebar batang agar tidak terlalu gemuk
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1f2937',
+                            padding: 10,
+                            titleFont: { size: 13, family: 'Poppins' },
+                            bodyFont: { size: 12, family: 'Poppins' }
+                        }
+                    },
                     scales: {
-                        y: { beginAtZero: true, border: {display: false}, grid: {color: '#f3f4f6'} },
-                        x: { border: {display: false}, grid: {display: false} }
+                        y: { 
+                            beginAtZero: true, 
+                            border: {display: false}, 
+                            grid: {color: '#f3f4f6'},
+                            ticks: {
+                                precision: 0 // Pastikan angka di sumbu Y adalah bilangan bulat (1, 2, 3...)
+                            }
+                        },
+                        x: { 
+                            border: {display: false}, 
+                            grid: {display: false} 
+                        }
                     }
                 }
             });
         }
 
-        // Pengecekan data untuk Doughnut Chart
+        // Pengecekan data untuk Doughnut Chart (Tetap sama)
         const doughnutLabels = {!! json_encode($chartKategori['labels']) !!};
         const doughnutData = {!! json_encode($chartKategori['data']) !!};
 
