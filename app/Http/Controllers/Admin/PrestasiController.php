@@ -9,7 +9,7 @@ use App\Models\Kategori;
 use App\Models\Tingkat;
 use App\Models\TahunAjaran;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File; // Menggunakan File untuk manipulasi folder public
+use Illuminate\Support\Facades\File; 
 use Illuminate\Support\Facades\Auth;
 
 class PrestasiController extends Controller
@@ -39,10 +39,9 @@ class PrestasiController extends Controller
             'nama_lomba' => 'required|string|max:255',
             'tanggal' => 'required|date',
             'deskripsi' => 'required|string',
-            'file_bukti' => 'required|mimes:pdf,jpg,jpeg,png|max:5120', // Max 5MB
+            'file_bukti' => 'required|mimes:pdf,jpg,jpeg,png|max:5120', 
         ]);
 
-        // Cek Tahun Ajaran Aktif
         $taAktif = TahunAjaran::where('status', 'aktif')->first();
         if (!$taAktif) {
             return back()->with('error', 'Tidak ada Tahun Ajaran yang aktif. Silakan set di menu Tahun Ajaran.');
@@ -52,14 +51,11 @@ class PrestasiController extends Controller
         $data['tahun_ajaran_id'] = $taAktif->id;
         $data['created_by'] = Auth::id();
         $data['unggulan'] = $request->has('unggulan') ? true : false;
-        $data['status'] = 'pending'; // Default saat input baru
+        $data['status'] = 'pending'; 
 
         if ($request->hasFile('file_bukti')) {
             $file = $request->file('file_bukti');
-            // Format nama: Time_NamaFileAsli.ext
             $filename = time() . '_' . $file->getClientOriginalName();
-            
-            // Pindahkan file langsung ke folder public/storage/bukti_prestasi
             $destinationPath = public_path('storage/bukti_prestasi');
             $file->move($destinationPath, $filename);
             
@@ -102,24 +98,20 @@ class PrestasiController extends Controller
         $data = $request->except('file_bukti');
         $data['unggulan'] = $request->has('unggulan') ? true : false;
         
-        // Jika statusnya ditolak, diedit otomatis jadi pending lagi untuk ditinjau kepsek
         if ($prestasi->status == 'ditolak') {
             $data['status'] = 'pending';
-            $data['catatan'] = null; // Reset catatan
+            $data['catatan'] = null;
         }
 
         if ($request->hasFile('file_bukti')) {
             $destinationPath = public_path('storage/bukti_prestasi');
-            
-            // Hapus file lama secara fisik jika ada
             if ($prestasi->file_bukti && File::exists($destinationPath . '/' . $prestasi->file_bukti)) {
                 File::delete($destinationPath . '/' . $prestasi->file_bukti);
             }
             
             $file = $request->file('file_bukti');
             $filename = time() . '_' . $file->getClientOriginalName();
-            
-            // Simpan file baru
+        
             $file->move($destinationPath, $filename);
             $data['file_bukti'] = $filename;
         }
@@ -133,7 +125,6 @@ class PrestasiController extends Controller
         $prestasi = Prestasi::findOrFail($id);
         $destinationPath = public_path('storage/bukti_prestasi');
         
-        // Hapus file fisik bukti prestasi
         if ($prestasi->file_bukti && File::exists($destinationPath . '/' . $prestasi->file_bukti)) {
             File::delete($destinationPath . '/' . $prestasi->file_bukti);
         }

@@ -21,7 +21,6 @@ class SiswaController extends Controller
             ->latest()
             ->paginate(10);
 
-        // Data untuk dropdown di Modal
         $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
         $tahunAjaran = TahunAjaran::orderBy('tahun', 'desc')->get();
             
@@ -37,7 +36,6 @@ class SiswaController extends Controller
             'status' => 'required|in:aktif,alumni',
         ];
 
-        // Jika status aktif, kelas wajib diisi
         if ($request->status == 'aktif') {
             $rules['kelas_id'] = 'required|exists:kelas,id';
         }
@@ -63,8 +61,6 @@ class SiswaController extends Controller
         }
 
         $request->validate($rules);
-
-        // Jika alumni, kita bisa mengosongkan kelas_id atau membiarkannya
         $data = $request->all();
         if ($request->status == 'alumni') {
             $data['kelas_id'] = null;

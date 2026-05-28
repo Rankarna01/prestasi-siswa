@@ -17,7 +17,7 @@ class PrestasiValidated extends Notification
 
     public function via($notifiable)
     {
-        return ['database']; // Simpan ke database sesuai sistem kita
+        return ['database']; 
     }
 
     public function toArray($notifiable)

@@ -20,10 +20,7 @@ class LaporanController extends Controller
         $kategori = Kategori::orderBy('nama_kategori')->get();
         $siswa = Siswa::orderBy('nama')->get();
 
-        // Base Query
         $query = Prestasi::with(['siswa', 'kategori', 'tingkat', 'tahunAjaran']);
-
-        // Filter Logic
         if ($request->filled('tahun_ajaran_id')) {
             $query->where('tahun_ajaran_id', $request->tahun_ajaran_id);
         }
@@ -33,8 +30,6 @@ class LaporanController extends Controller
         if ($request->filled('siswa_id')) {
             $query->where('siswa_id', $request->siswa_id);
         }
-
-        // Data untuk Ringkasan
         $stats = [
             'total' => (clone $query)->count(),
             'disetujui' => (clone $query)->where('status', 'disetujui')->count(),
@@ -56,8 +51,6 @@ class LaporanController extends Controller
         if ($request->filled('siswa_id')) $query->where('siswa_id', $request->siswa_id);
 
         $prestasi = $query->latest()->get();
-
-        // Render view ke PDF (A4 Landscape)
         $pdf = Pdf::loadView('admin.laporan.pdf', compact('prestasi'))->setPaper('a4', 'landscape');
         
         return $pdf->download('laporan_prestasi_siswa.pdf');

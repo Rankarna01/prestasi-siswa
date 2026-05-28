@@ -21,11 +21,11 @@ use App\Http\Controllers\Kepsek\NotifikasiController as KepsekNotifikasiControll
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Pengunjung\PrestasiController as PublicPrestasiController;
 use App\Http\Controllers\Admin\PengaturanController;
-// Halaman Pengunjung (Akan dikerjakan belakangan)
 
 
 
 
+//Route awal halaman home 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/prestasi', [PublicPrestasiController::class, 'index'])->name('public.prestasi.index');
 Route::get('/prestasi-unggulan', [PublicPrestasiController::class, 'unggulan'])->name('public.prestasi.unggulan');

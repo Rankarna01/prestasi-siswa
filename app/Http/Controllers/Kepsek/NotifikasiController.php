@@ -9,7 +9,6 @@ class NotifikasiController extends Controller
 {
     public function index()
     {
-        // Mengambil seluruh notifikasi milik Kepala Sekolah
         $notifikasis = auth()->user()->notifications()->paginate(10);
         return view('kepsek.notifikasi.index', compact('notifikasis'));
     }
@@ -18,8 +17,6 @@ class NotifikasiController extends Controller
     {
         $notification = auth()->user()->notifications()->findOrFail($id);
         $notification->markAsRead();
-        
-        // Arahkan ke URL detail data (biasanya halaman verifikasi) jika ada
         if (isset($notification->data['url'])) {
             return redirect($notification->data['url']);
         }

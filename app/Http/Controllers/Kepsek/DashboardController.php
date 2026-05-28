@@ -9,7 +9,6 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Hitung statistik untuk Kepsek
         $stats = [
             'total' => Prestasi::count(),
             'pending' => Prestasi::where('status', 'pending')->count(),
@@ -17,7 +16,6 @@ class DashboardController extends Controller
             'ditolak' => Prestasi::where('status', 'ditolak')->count(),
         ];
 
-        // Ambil data terbaru yang butuh verifikasi (Pending)
         $prestasiPending = Prestasi::with(['siswa', 'kategori', 'tingkat'])
             ->where('status', 'pending')
             ->latest()

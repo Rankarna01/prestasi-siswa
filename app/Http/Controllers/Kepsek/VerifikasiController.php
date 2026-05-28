@@ -8,7 +8,7 @@ use App\Models\Kategori;
 use App\Models\Tingkat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
-use App\Notifications\PrestasiValidated; // Opsional: Untuk kirim notif nanti
+use App\Notifications\PrestasiValidated; 
 
 class VerifikasiController extends Controller
 {
@@ -26,8 +26,6 @@ class VerifikasiController extends Controller
         ];
 
         $query = Prestasi::with(['siswa', 'kategori', 'tingkat'])->where('status', $currentTab);
-
-        // Filter pencarian
         if ($request->filled('search')) {
             $query->where('nama_lomba', 'like', '%' . $request->search . '%')
                   ->orWhereHas('siswa', function($q) use ($request) {
@@ -61,8 +59,7 @@ class VerifikasiController extends Controller
             'status' => $request->status,
             'catatan' => $request->catatan,
         ]);
-
-        // Logika Notifikasi ke Admin (Pembuat data)
+        
         $admin = $prestasi->creator;
         $statusTeks = $request->status == 'disetujui' ? 'DISETUJUI' : 'DITOLAK';
         $warna = $request->status == 'disetujui' ? 'text-green-500 bg-green-50' : 'text-red-500 bg-red-50';

@@ -42,17 +42,15 @@ class ValidasiController extends Controller
             $query->where('kategori_id', $request->kategori_id);
         }
 
-        // Filter Tingkat
         if ($request->filled('tingkat_id')) {
             $query->where('tingkat_id', $request->tingkat_id);
         }
 
-        // Filter Tahun Ajaran
         if ($request->filled('tahun_ajaran_id')) {
             $query->where('tahun_ajaran_id', $request->tahun_ajaran_id);
         }
 
-        $prestasi = $query->paginate(10)->withQueryString(); // withQueryString agar filter tidak hilang saat pindah halaman pagination
+        $prestasi = $query->paginate(10)->withQueryString(); 
 
         return view('admin.validasi.index', compact('prestasi', 'kategori', 'tingkat', 'tahunAjaran', 'counts', 'currentStatus'));
     }

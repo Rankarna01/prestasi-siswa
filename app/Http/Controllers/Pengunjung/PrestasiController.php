@@ -11,19 +11,16 @@ use App\Models\TahunAjaran;
 
 class PrestasiController extends Controller
 {
-    // Method untuk semua prestasi
     public function index(Request $request)
     {
         return $this->getPrestasiData($request, 'Semua Prestasi', false);
     }
 
-    // Method khusus prestasi unggulan
     public function unggulan(Request $request)
     {
         return $this->getPrestasiData($request, 'Prestasi Unggulan', true);
     }
 
-    // Private method agar kode tidak berulang (DRY)
     private function getPrestasiData(Request $request, $title, $isUnggulan)
     {
         $kategori = Kategori::orderBy('nama_kategori')->get();
@@ -37,7 +34,6 @@ class PrestasiController extends Controller
             $query->where('unggulan', true);
         }
 
-        // Logika Filter
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -60,7 +56,6 @@ class PrestasiController extends Controller
 
         $prestasi = $query->latest('tanggal')->paginate(12)->withQueryString();
 
-        // Kita gunakan 1 file view yang sama untuk index & unggulan agar efisien
         return view('pengunjung.prestasi.index', compact('prestasi', 'kategori', 'tingkat', 'tahunAjaran', 'title', 'isUnggulan'));
     }
 }

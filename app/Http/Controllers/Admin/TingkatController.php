@@ -38,7 +38,6 @@ class TingkatController extends Controller
     public function destroy($id)
     {
         $tingkat = Tingkat::findOrFail($id);
-        // Nanti bisa ditambahkan validasi cek relasi ke tabel prestasi di sini
         $tingkat->delete();
         return redirect()->back()->with('success', 'Tingkat lomba berhasil dihapus!');
     }

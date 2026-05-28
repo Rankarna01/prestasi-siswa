@@ -40,7 +40,6 @@ class KategoriController extends Controller
     public function destroy($id)
     {
         $kategori = Kategori::findOrFail($id);
-        // Nanti bisa ditambahkan validasi cek relasi ke tabel prestasi di sini
         $kategori->delete();
         return redirect()->back()->with('success', 'Kategori prestasi berhasil dihapus!');
     }

@@ -10,7 +10,6 @@ class NotifikasiController extends Controller
 {
     public function index()
     {
-        // Mengambil notifikasi user yang sedang login, urut dari yang terbaru
         $notifikasis = auth()->user()->notifications()->paginate(10);
         return view('admin.notifikasi.index', compact('notifikasis'));
     }
@@ -20,7 +19,6 @@ class NotifikasiController extends Controller
         $notification = auth()->user()->notifications()->findOrFail($id);
         $notification->markAsRead();
         
-        // Jika notifikasi memiliki link (misal: link ke halaman edit data ditolak)
         if (isset($notification->data['url'])) {
             return redirect($notification->data['url']);
         }

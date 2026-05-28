@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class TahunAjaran extends Model
 {
-    // Beritahu Laravel nama tabelnya secara eksplisit
+
     protected $table = 'tahun_ajaran';
 
     protected $fillable = ['tahun', 'status'];
