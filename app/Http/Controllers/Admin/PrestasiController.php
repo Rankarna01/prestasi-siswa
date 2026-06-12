@@ -11,6 +11,8 @@ use App\Models\TahunAjaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File; 
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use App\Notifications\PrestasiSubmitted;
 
 class PrestasiController extends Controller
 {
@@ -62,7 +64,20 @@ class PrestasiController extends Controller
             $data['file_bukti'] = $filename;
         }
 
-        Prestasi::create($data);
+        $prestasi = Prestasi::create($data);
+
+        // Notify Kepala Sekolah
+        $kepalaSekolah = User::where('role', 'kepala_sekolah')->get();
+        foreach ($kepalaSekolah as $ks) {
+            $ks->notify(new PrestasiSubmitted([
+                'judul' => 'Validasi Prestasi Baru',
+                'pesan' => "Terdapat data prestasi baru '{$prestasi->nama_lomba}' atas nama {$prestasi->siswa->nama} yang menunggu verifikasi Anda.",
+                'url' => route('kepsek.verifikasi.show', $prestasi->id),
+                'warna' => 'text-blue-500 bg-blue-50',
+                'icon' => 'fa-solid fa-file-signature'
+            ]));
+        }
+
         return redirect()->route('admin.prestasi.index')->with('success', 'Data prestasi berhasil ditambahkan dan berstatus Pending.');
     }
 
@@ -117,6 +132,21 @@ class PrestasiController extends Controller
         }
 
         $prestasi->update($data);
+
+        // Jika status berubah jadi pending, kirim notif ulang
+        if (isset($data['status']) && $data['status'] == 'pending') {
+            $kepalaSekolah = User::where('role', 'kepala_sekolah')->get();
+            foreach ($kepalaSekolah as $ks) {
+                $ks->notify(new PrestasiSubmitted([
+                    'judul' => 'Validasi Revisi Prestasi',
+                    'pesan' => "Data prestasi '{$prestasi->nama_lomba}' atas nama {$prestasi->siswa->nama} telah diperbarui dan menunggu verifikasi Anda.",
+                    'url' => route('kepsek.verifikasi.show', $prestasi->id),
+                    'warna' => 'text-blue-500 bg-blue-50',
+                    'icon' => 'fa-solid fa-file-signature'
+                ]));
+            }
+        }
+
         return redirect()->route('admin.prestasi.index')->with('success', 'Data prestasi berhasil diperbarui!');
     }
 
